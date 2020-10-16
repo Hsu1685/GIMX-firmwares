@@ -110,23 +110,30 @@ void test(void) {
 void receiveEvent(int howMany) {
     LED();  // 通訊狀態判斷
     uint8_t incoming_byte;
-    while (available()) {
+    // while (available() > 0) {
         incoming_byte = read();
         data_event(incoming_byte);
         test();
-    }
+    // }
 }
 
 void requestEvent(void) {
-    write_data(get_data(1, 9)); // respond with message of 4 bytes
+    write_data(get_data(1, 9));     // respond with message of 1 bytes
+/*
+    write_data(get_data(1, 1));     // respond with message of 4 bytes
     write_data(get_data(1, 2));
     write_data(get_data(1, 3));
     write_data(get_data(1, 4));
 /*
-    write_data(0x45);
-    write_data(0x46);
-    write_data(0x47);
-    write_data(0x48);
+    write_data(report[1]);          // respond with message of 8 bytes
+    write_data(report[2]);
+    write_data(report[3]);
+    write_data(report[4]);
+
+    write_data(report[5]);
+    write_data(report[6]);
+    write_data(report[7]);
+    write_data(report[8]);
     // LED();
 */
 }
