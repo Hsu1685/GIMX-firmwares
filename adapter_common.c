@@ -108,17 +108,19 @@ void test(void) {
 }
 
 void receiveEvent(int howMany) {
-    LED();  // 通訊狀態判斷
-    uint8_t incoming_byte;
-    // while (available() > 0) {
-        incoming_byte = read();
-        data_event(incoming_byte);
-        test();
-    // }
+    LED();  // 通訊判斷
+    if (available() > 0) {
+        data_event((uint8_t)read());
+        // test();
+        while (available() > 0) {
+            data_event((uint8_t)read());
+            // test();
+        }
+    }
 }
 
 void requestEvent(void) {
-    write_data(get_data(1, 9));     // respond with message of 1 bytes
+    write_data(report[6]);     // respond with message of 1 bytes
 /*
     write_data(get_data(1, 1));     // respond with message of 4 bytes
     write_data(get_data(1, 2));
@@ -136,6 +138,25 @@ void requestEvent(void) {
     write_data(report[8]);
     // LED();
 */
+}
+
+void rapid_fire2(uint8_t flag, uint8_t time1, uint8_t time2) {  // 測試用函數內部counter產生方波
+    flag = flag & 0b00001000;
+	if (flag != 0x08)
+    return;
+
+    static uint8_t counter = 0;
+
+    if ((counter >= time1) && (counter < time2)) {
+		// test();
+		// report[6] = (report[6] & 0b11110111) | 0b00001000;   // rapid fire button
+		report[9] = 0x00;
+		// report[5] = (report[5] & 0b11011111) | 0b00100000;
+    }
+    else if (counter >= time2) {
+        counter = 0;
+    }
+    counter++;
 }
 
 void forceHardReset(void) {
@@ -300,7 +321,8 @@ void SendNextReport(void) {
     if (sendReport) {
 
         if (Endpoint_IsINReady()) {
-
+			rapid_fire2(report[6], 21, 44);
+			test();
             Endpoint_Write_Stream_LE(report, reportLen, NULL);
             sendReport = 0;
             Endpoint_ClearIN();
