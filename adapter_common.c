@@ -141,17 +141,17 @@ void requestEvent(void) {
 }
 
 void rapid_fire2(uint8_t flag, uint8_t time1, uint8_t time2) {  // 測試用函數內部counter產生方波
-    flag = flag & 0b00001000;
-	if (flag != 0x08)
-    return;
-
-    static uint8_t counter = 0;
-
+    static uint8_t counter;
+	flag = flag & 0b00001000;
+	if (flag != 0x08) {
+		counter = 0;
+		return;		
+	}
+	
     if ((counter >= time1) && (counter < time2)) {
-		// test();
+		// report[5] = (report[5] & 0b11011111) | 0b00100000;    }
 		// report[6] = (report[6] & 0b11110111) | 0b00001000;   // rapid fire button
 		report[9] = 0x00;
-		// report[5] = (report[5] & 0b11011111) | 0b00100000;
     }
     else if (counter >= time2) {
         counter = 0;
@@ -321,8 +321,8 @@ void SendNextReport(void) {
     if (sendReport) {
 
         if (Endpoint_IsINReady()) {
-			rapid_fire2(report[6], 21, 44);
-			test();
+			rapid_fire2(report[6], 9, 20);
+			// test();
             Endpoint_Write_Stream_LE(report, reportLen, NULL);
             sendReport = 0;
             Endpoint_ClearIN();
